@@ -1,4 +1,9 @@
 var running = true;
+var numberOfSteps = 50;
+var populationSize=50;
+var mutationRate = 0.01;
+var goal = 6*64;
+var increaseMovesBy = 40;
 var count;
 var size;
 var gravity;
@@ -8,26 +13,12 @@ var jumpV;
 var squareArray;
 var spikeArray;
 var speed;
+var population;
+
 
 var level1 =
 {
   "squares":[
-    {
-    "x":1,
-    "y":4
-    },
-    {
-    "x":5,
-    "y":4
-    },
-    {
-    "x":7,
-    "y":3
-    },
-    {
-    "x":9,
-    "y":2
-    },
     {
     "x":12,
     "y":1
@@ -68,6 +59,20 @@ var level1 =
     "x":21,
     "y":1
     },
+    {
+    "x":27,
+    "y":1
+    },
+    {
+    "x":27,
+    "y":2
+    },
+
+    {
+    "x":30,
+    "y":2
+    },
+
   
   ]
 }
@@ -86,7 +91,7 @@ function setup() {
   speed = 5;
   setupWorld();
   spikeArray=[];
-  player = new Player(200,ground-(size/2));
+  population = new Population(populationSize);
 
 } 
 function setupWorld(){
@@ -99,19 +104,42 @@ function setupWorld(){
 
 function draw() { 
   //console.log(frameRate());
-  count=((count+1)%250);
+  count=((count+0.5)%128);
+  
   background(count);
-  player.draw();
-  player.collision();
+  if (population.solutionFound){
+    noLoop();
+  }
+  population.draw();
+  population.update();
+  if (population.allPlayersDead()){
+    population.naturalSelection();
+    population.mutate();
+    count = 0;
+    if (population.solutionFound){
+      noLoop();
+      return;
+    }
+    setupWorld();
+    console.log(population.gen);
+    if (population.gen%5==0){
+      population.increaseMoves();
+    }
+  }
   drawSquares();
   drawGround();
+  textSize(40);
+  fill(0,0,0);
+  text('Generation:'+str(population.gen), 10, windowHeight-60);
   checkKeyPress();
 }
 
 function drawSquares(){
   for (let square of squareArray){
     square.draw();
-    square.collision(player);
+    for (let i=0;i<population.players.length;i++){
+      square.collision(population.players[i]);
+    }
   }
 }
 function drawGround(){

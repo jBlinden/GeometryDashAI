@@ -11,6 +11,7 @@ class square{
   		rect(this.pos.x,ground-this.pos.y,size,size)
   	}
     collision(player){
+    if (!player.isDead){
       const topLeft = createVector(this.pos.x,ground-this.pos.y);
       const bottomRight = createVector(this.pos.x+size,ground-this.pos.y+size);
 
@@ -34,4 +35,5 @@ class square{
       //rect(this.pos.x,ground-this.pos.y,size,size)
       player.death();
     }
+  }
 }
